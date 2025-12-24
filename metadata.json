@@ -1,0 +1,10 @@
+
+{
+  "name": "Cuttack SafeGuard Help",
+  "description": "A high-priority emergency assistance application designed for Cuttack, Odisha. Includes 112 access, full helpline directory, nearby safe place finder, and evidence recording.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera",
+    "microphone"
+  ]
+}
