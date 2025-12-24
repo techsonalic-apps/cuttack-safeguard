@@ -1,23 +1,38 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join } from 'path';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    {
+      name: 'copy-pwa-assets',
+      closeBundle() {
+        const files = ['manifest.json', 'sw.js'];
+        const distPath = join(process.cwd(), 'dist');
+        if (!existsSync(distPath)) {
+          mkdirSync(distPath, { recursive: true });
         }
+        files.forEach(file => {
+          try {
+            const src = join(process.cwd(), file);
+            const dest = join(distPath, file);
+            if (existsSync(src)) {
+              writeFileSync(dest, readFileSync(src));
+              console.log(`Successfully copied ${file} to dist/`);
+            }
+          } catch (e) {
+            console.error(`Failed to copy ${file}:`, e);
+          }
+        });
       }
-    };
+    }
+  ],
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true
+  }
 });
